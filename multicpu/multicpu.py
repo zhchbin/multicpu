@@ -61,7 +61,7 @@ def get_index(job_queue, split_num):
 
     if job_num < split_num:
         split_num = job_num
-    each_num = job_num/split_num
+    each_num = job_num//split_num
     
     index = [ [i*each_num, i*each_num+each_num-1] for i in range(split_num)]
     

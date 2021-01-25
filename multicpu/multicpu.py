@@ -49,12 +49,9 @@ def _multi_thread(argv):
             result.append(_func(func_argv))
         return result
 
-    # else 
-    thread_pool = futures.ThreadPoolExecutor(max_workers=thread_num)
-
-    result = thread_pool.map(_func, func_argvs, timeout=argv[4])
-    
-    return [ r for r in result]
+    with futures.ThreadPoolExecutor(max_workers=thread_num) as thread_pool:
+        result = thread_pool.map(_func, func_argvs, timeout=argv[4])
+        return [ r for r in result]
 
 def get_index(job_queue, split_num):
     job_num = getLen(job_queue)

@@ -14,20 +14,20 @@ class Multicpu():
             return []
         index = get_index(job_queue, self.cpu_num)
 
-        cpu_pool = multiprocessing.Pool(processes=self.cpu_num)
+        with multiprocessing.Pool(processes=self.cpu_num) as cpu_pool:
+            mgr = multiprocessing.Manager()
+            process_bar = mgr.list()
+            for i in range(self.cpu_num):
+                process_bar.append(0)
 
-        mgr = multiprocessing.Manager()
-        process_bar = mgr.list()
-        for i in range(self.cpu_num):
-            process_bar.append(0)
+            result_queue = cpu_pool.map(_multi_thread, [ [func, self.cpu_num, self.thread_num, job_queue[index[i][0]: index[i][1]+1], timeout, process_bar, i] for i in range(len(index))])
 
-        result_queue = cpu_pool.map(_multi_thread, [ [func, self.cpu_num, self.thread_num, job_queue[index[i][0]: index[i][1]+1], timeout, process_bar, i] for i in range(len(index))])
+            result = []
+            for rl in result_queue:
+                for r in rl:
+                    result.append(r)
+            return result
 
-        result = []
-        for rl in result_queue:
-            for r in rl:
-                result.append(r)
-        return result 
 
 def _func(argv):
     argv[2][argv[3]] = round((argv[4]*100.0/argv[5]), 2)
